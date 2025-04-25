@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard - Bingo</title>
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="dashboard-container">
+        <h1>Welcome, <%= user.name %></h1>
+        <p class="member-info">House No: <%= user.houseNo %></p>
+        
+        <div class="request-section">
+            <h2>Garbage Collection Requests</h2>
+            
+            <button id="newRequestBtn" class="btn btn-primary">New Collection Request</button>
+            
+            <div class="request-form" id="requestForm" style="display: none;">
+                <form action="/member/request" method="POST">
+                    <div class="form-group">
+                        <label>House Number</label>
+                        <input type="text" value="<%= user.houseNo %>" disabled class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </form>
+            </div>
+            
+            <table class="requests-table">
+                <thead>
+                    <tr>
+                        <th>Request Date</th>
+                        <th>Status</th>
+                        <th>Collector</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% requests.forEach(request => { %>
+                        <tr>
+                            <td><%= new Date(request.requestedAt).toLocaleString() %></td>
+                            <td class="status-<%= request.status %>">
+                                <%= request.status.charAt(0).toUpperCase() + request.status.slice(1) %>
+                            </td>
+                            <td>
+                                <% if (request.collector) { %>
+                                    <%= request.collector.name %>
+                                <% } else { %>
+                                    Not assigned
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        // Toggle request form visibility
+        document.getElementById('newRequestBtn').addEventListener('click', function() {
+            const form = document.getElementById('requestForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

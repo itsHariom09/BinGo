@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Requests - Bingo</title>
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="container">
+        <h1>Garbage Collection Requests</h1>
+        
+        <div class="request-filters">
+            <select id="statusFilter" class="form-control">
+                <option value="all">All Requests</option>
+                <option value="pending">Pending</option>
+                <option value="assigned">Assigned</option>
+                <option value="completed">Completed</option>
+            </select>
+        </div>
+
+        <table class="requests-table">
+            <thead>
+                <tr>
+                    <th>House No.</th>
+                    <th>Member</th>
+                    <th>Status</th>
+                    <th>Requested On</th>
+                    <th>Collector</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% requests.forEach(request => { %>
+                    <tr data-status="<%= request.status %>">
+                        <td><%= request.houseNo %></td>
+                        <td><%= request.member.name %></td>
+                        <td class="status-<%= request.status %>">
+                            <%= request.status.charAt(0).toUpperCase() + request.status.slice(1) %>
+                        </td>
+                        <td><%= new Date(request.requestedAt).toLocaleString() %></td>
+                        <td>
+                            <% if (request.collector) { %>
+                                <%= request.collector.name %>
+                            <% } else { %>
+                                -
+                            <% } %>
+                        </td>
+                        <td>
+                            <% if (request.status === 'pending') { %>
+                                <select class="collector-select" data-request="<%= request._id %>">
+                                    <option value="">Select Collector</option>
+                                    <% collectors.forEach(collector => { %>
+                                        <option value="<%= collector._id %>"><%= collector.name %></option>
+                                    <% }); %>
+                                </select>
+                                <button class="btn btn-sm btn-assign" 
+                                        data-request="<%= request._id %>">Assign</button>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        // Filter requests by status
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            const status = this.value;
+            const rows = document.querySelectorAll('.requests-table tbody tr');
+            
+            rows.forEach(row => {
+                if (status === 'all' || row.dataset.status === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Handle collector assignment
+        document.querySelectorAll('.btn-assign').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const requestId = this.dataset.request;
+                const select = this.previousElementSibling;
+                const collectorId = select.value;
+                
+                if (!collectorId) {
+                    alert('Please select a collector');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`/head/requests/assign`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            requestId,
+                            collectorId
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Assignment failed');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error assigning collector');
+                }
+            });
+        });
+    </script>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

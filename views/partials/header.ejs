@@ -1,0 +1,22 @@
+<header>
+    <div class="header-container">
+        <a href="/" class="logo">BinGo</a>
+        <nav class="nav-links">
+            <ul>
+                <% if (typeof user === 'undefined' || !user) { %>
+                    <li><a href="/auth/login">Login</a></li>
+                    <li><a href="/auth/register-society">Register Society</a></li>
+                <% } else { %>
+                    <% if (role === 'society') { %>
+                        <li><a href="/head/dashboard">Dashboard</a></li>
+                    <% } else if (role === 'member') { %>
+                        <li><a href="/member/dashboard">Dashboard</a></li>
+                    <% } else if (role === 'collector') { %>
+                        <li><a href="/collector/dashboard">Dashboard</a></li>
+                    <% } %>
+                    <li><a href="/auth/logout">Logout</a></li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
+</header>

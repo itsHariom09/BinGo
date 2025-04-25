@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Members - Bingo</title>
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="containerx">
+        <h1>Society Members</h1>
+        
+        <div class="member-actions">
+            <button id="addMemberBtn" class="btn btn-primary">Add New Member</button>
+        </div>
+
+        <div class="member-form" id="memberForm" style="display: none;">
+            <h2>Add Member</h2>
+            <form action="/head/members" method="POST">
+                <div class="form-group">
+                    <label for="name">Member Name</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="houseNo">House Number</label>
+                    <input type="text" name="houseNo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Member</button>
+            </form>
+        </div>
+
+        <table class="members-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>House No.</th>
+                    <th>Email</th>
+                    <th>Joined On</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% members.forEach(member => { %>
+                    <tr>
+                        <td><%= member.name %></td>
+                        <td><%= member.houseNo %></td>
+                        <td><%= member.email %></td>
+                        <td><%= new Date(member.createdAt).toLocaleDateString() %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        document.getElementById('addMemberBtn').addEventListener('click', function() {
+            const form = document.getElementById('memberForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

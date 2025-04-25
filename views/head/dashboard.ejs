@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Society Dashboard - Bingo</title>
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="dashboard-container">
+        <h1>Society Head Dashboard</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Members</h3>
+                <p><%= members %></p>
+            </div>
+            <div class="stat-card">
+                <h3>Pending Requests</h3>
+                <p><%= pendingRequests %></p>
+            </div>
+        </div>
+        
+        <div class="dashboard-actions">
+            <a href="/head/members" class="btn btn-primary">Manage Members</a>
+            <a href="/head/requests" class="btn btn-secondary">View Requests</a>
+        </div>
+    </main>
+    
+    <%- include('../partials/footer') %>
+</body>
+</html>
