@@ -1,52 +1,108 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
+
 const { ensureHead } = require('../middleware/auth');
 const Member = require('../models/Member');
 const Request = require('../models/Request');
 const Collector = require('../models/Collector');
 
+// =======================
 // Dashboard
+// =======================
 router.get('/dashboard', ensureHead, async (req, res) => {
     try {
-        const members = await Member.find({ society: req.session.user._id });
-        const pendingRequests = await Request.find({ 
-            society: req.session.user._id,
-            status: 'pending'
-        }).populate('member');
-        
+        const [members, pendingRequests] = await Promise.all([
+            Member.countDocuments({
+                society: req.session.user._id
+            }),
+
+            Request.countDocuments({
+                society: req.session.user._id,
+                status: 'pending'
+            })
+        ]);
+
         res.render('head/dashboard', {
+            title: 'Society Dashboard',
             user: req.session.user,
-            members: members.length,
-            pendingRequests: pendingRequests.length
+            members,
+            pendingRequests
         });
+
     } catch (err) {
-        console.error(err);
-        res.redirect('/head/dashboard');
+
+        console.error('Dashboard Error:', err);
+
+        res.status(500).render('head/dashboard', {
+            title: 'Society Dashboard',
+            user: req.session.user,
+            members: 0,
+            pendingRequests: 0,
+            error: 'Failed to load dashboard.'
+        });
+
     }
 });
 
-// Members
+// =======================
+// Members List
+// =======================
 router.get('/members', ensureHead, async (req, res) => {
+
     try {
-        const members = await Member.find({ society: req.session.user._id });
+
+        const members = await Member.find({
+            society: req.session.user._id
+        });
+
         res.render('head/members', {
+            title: 'Members',
             user: req.session.user,
             members
         });
+
     } catch (err) {
-        console.error(err);
-        res.redirect('/head/dashboard');
+
+        console.error('Members Error:', err);
+
+        res.status(500).render('head/members', {
+            title: 'Members',
+            user: req.session.user,
+            members: [],
+            error: 'Failed to load members.'
+        });
+
     }
+
 });
 
+// =======================
 // Add Member
+// =======================
 router.post('/members', ensureHead, async (req, res) => {
-    const { name, houseNo, email, password } = req.body;
-    
+
+    const {
+        name,
+        houseNo,
+        email,
+        password
+    } = req.body;
+
     try {
+
+        if (!name || !houseNo || !email || !password) {
+            return res.redirect('/head/members');
+        }
+
+        const existingMember = await Member.findOne({ email });
+
+        if (existingMember) {
+            return res.redirect('/head/members');
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
-        
+
         const member = new Member({
             name,
             houseNo,
@@ -56,86 +112,96 @@ router.post('/members', ensureHead, async (req, res) => {
         });
 
         await member.save();
+
         res.redirect('/head/members');
+
     } catch (err) {
-        console.error(err);
+
+        console.error('Add Member Error:', err);
+
         res.redirect('/head/members');
+
     }
+
 });
 
+// =======================
 // Requests
+// =======================
 router.get('/requests', ensureHead, async (req, res) => {
+
     try {
-        const requests = await Request.find({ society: req.session.user._id })
-            .populate('member')
-            .populate('collector');
-            
-        const collectors = await Collector.find({ area: req.session.user.city });
-        
+
+        const [requests, collectors] = await Promise.all([
+
+            Request.find({
+                society: req.session.user._id
+            })
+                .populate('member')
+                .populate('collector'),
+
+            Collector.find({
+                area: req.session.user.city
+            })
+
+        ]);
+
         res.render('head/requests', {
+            title: 'Waste Requests',
             user: req.session.user,
             requests,
             collectors
         });
-    } catch (err) {
-        console.error(err);
-        res.redirect('/head/dashboard');
-    }
-});
 
-// Assign Collector
-router.post('/requests/assign', ensureHead, async (req, res) => {
-    const { requestId, collectorId } = req.body;
-    
-    try {
-        await Request.findByIdAndUpdate(requestId, {
-            collector: collectorId,
-            status: 'assigned'
+    } catch (err) {
+
+        console.error('Requests Error:', err);
+
+        res.status(500).render('head/requests', {
+            title: 'Waste Requests',
+            user: req.session.user,
+            requests: [],
+            collectors: [],
+            error: 'Failed to load requests.'
         });
-        
-        res.redirect('/head/requests');
-    } catch (err) {
-        console.error(err);
-        res.redirect('/head/requests');
+
     }
+
 });
 
-router.post('/members', ensureHead, async (req, res) => {
-    const { name, houseNo, email, password } = req.body;
-    
+// =======================
+// Assign Collector
+// =======================
+router.post('/requests/assign', ensureHead, async (req, res) => {
+
+    const { requestId, collectorId } = req.body;
+
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
-        const member = new Member({
-            name,
-            houseNo,
-            email,
-            password: hashedPassword,
+
+        const request = await Request.findOne({
+            _id: requestId,
             society: req.session.user._id
         });
 
-        await member.save();
-        res.redirect('/head/members');
+        if (!request) {
+            return res.redirect('/head/requests');
+        }
+
+        request.collector = collectorId;
+        request.status = 'assigned';
+
+        await request.save();
+
+        res.redirect('/head/requests');
+
     } catch (err) {
-        console.error(err);
-        res.redirect('/head/members');
+
+        console.error('Assign Collector Error:', err);
+
+        res.redirect('/head/requests');
+
     }
-});
-// In your head/requests route handler (routes/head.js)
-router.get('/requests', ensureHead, async (req, res) => {
-    try {
-        const collectors = await Collector.find({ area: req.session.user.city });
-        // Ensure you're passing collectors to the view
-        res.render('head/requests', {
-            collectors: collectors || [] // Fallback to empty array
-        });
-    } catch (err) {
-        console.error(err);
-        res.render('head/requests', {
-            collectors: [], // Provide empty array on error
-            error: 'Failed to load collectors'
-        });
-    }
+
 });
 
 module.exports = router;

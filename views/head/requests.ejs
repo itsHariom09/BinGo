@@ -1,123 +1,367 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Requests - Bingo</title>
-    <link href="/css/style.css" rel="stylesheet">
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Waste Requests | Bingo</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<link rel="stylesheet" href="/css/head-requests.css">
+
 </head>
+
 <body>
-    <%- include('../partials/header') %>
-    
-    <main class="container">
-        <h1>Garbage Collection Requests</h1>
-        
-        <div class="request-filters">
-            <select id="statusFilter" class="form-control">
-                <option value="all">All Requests</option>
-                <option value="pending">Pending</option>
-                <option value="assigned">Assigned</option>
-                <option value="completed">Completed</option>
-            </select>
-        </div>
 
-        <table class="requests-table">
-            <thead>
-                <tr>
-                    <th>House No.</th>
-                    <th>Member</th>
-                    <th>Status</th>
-                    <th>Requested On</th>
-                    <th>Collector</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% requests.forEach(request => { %>
-                    <tr data-status="<%= request.status %>">
-                        <td><%= request.houseNo %></td>
-                        <td><%= request.member.name %></td>
-                        <td class="status-<%= request.status %>">
-                            <%= request.status.charAt(0).toUpperCase() + request.status.slice(1) %>
-                        </td>
-                        <td><%= new Date(request.requestedAt).toLocaleString() %></td>
-                        <td>
-                            <% if (request.collector) { %>
-                                <%= request.collector.name %>
-                            <% } else { %>
-                                -
-                            <% } %>
-                        </td>
-                        <td>
-                            <% if (request.status === 'pending') { %>
-                                <select class="collector-select" data-request="<%= request._id %>">
-                                    <option value="">Select Collector</option>
-                                    <% collectors.forEach(collector => { %>
-                                        <option value="<%= collector._id %>"><%= collector.name %></option>
-                                    <% }); %>
-                                </select>
-                                <button class="btn btn-sm btn-assign" 
-                                        data-request="<%= request._id %>">Assign</button>
-                            <% } %>
-                        </td>
-                    </tr>
-                <% }); %>
-            </tbody>
-        </table>
-    </main>
+<%- include('../partials/header') %>
 
-    <script>
-        // Filter requests by status
-        document.getElementById('statusFilter').addEventListener('change', function() {
-            const status = this.value;
-            const rows = document.querySelectorAll('.requests-table tbody tr');
-            
-            rows.forEach(row => {
-                if (status === 'all' || row.dataset.status === status) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
+<section class="requests-page">
 
-        // Handle collector assignment
-        document.querySelectorAll('.btn-assign').forEach(btn => {
-            btn.addEventListener('click', async function() {
-                const requestId = this.dataset.request;
-                const select = this.previousElementSibling;
-                const collectorId = select.value;
-                
-                if (!collectorId) {
-                    alert('Please select a collector');
-                    return;
-                }
-                
-                try {
-                    const response = await fetch(`/head/requests/assign`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            requestId,
-                            collectorId
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        alert('Assignment failed');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error assigning collector');
-                }
-            });
-        });
-    </script>
+<!-- ================= HEADER ================= -->
 
-    <%- include('../partials/footer') %>
+<div class="page-header">
+
+<div>
+
+<h1>
+
+<i class="fa-solid fa-trash"></i>
+
+Waste Collection Requests
+
+</h1>
+
+<p>
+
+Manage all garbage pickup requests.
+
+</p>
+
+</div>
+
+</div>
+
+<!-- ================= STATS ================= -->
+
+<div class="stats-grid">
+
+<div class="stat-card pending">
+
+<h2>
+
+<%= requests.filter(r=>r.status==='pending').length %>
+
+</h2>
+
+<p>Pending</p>
+
+</div>
+
+<div class="stat-card assigned">
+
+<h2>
+
+<%= requests.filter(r=>r.status==='assigned').length %>
+
+</h2>
+
+<p>Assigned</p>
+
+</div>
+
+<div class="stat-card completed">
+
+<h2>
+
+<%= requests.filter(r=>r.status==='completed').length %>
+
+</h2>
+
+<p>Completed</p>
+
+</div>
+
+</div>
+
+<!-- ================= SEARCH ================= -->
+
+<div class="toolbar">
+
+<div class="search-box">
+
+<i class="fa-solid fa-search"></i>
+
+<input
+type="text"
+id="searchInput"
+placeholder="Search House / Member...">
+
+</div>
+
+<select id="statusFilter">
+
+<option value="all">All Requests</option>
+
+<option value="pending">Pending</option>
+
+<option value="assigned">Assigned</option>
+
+<option value="completed">Completed</option>
+
+</select>
+
+</div>
+
+<!-- ================= TABLE ================= -->
+
+<div class="table-card">
+
+<table id="requestTable">
+
+<thead>
+
+<tr>
+
+<th>House</th>
+
+<th>Member</th>
+
+<th>Status</th>
+
+<th>Date</th>
+
+<th>Collector</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<% if(requests.length===0){ %>
+
+<tr>
+
+<td colspan="6">
+
+<div class="empty">
+
+<i class="fa-solid fa-box-open"></i>
+
+<p>No Requests Found</p>
+
+</div>
+
+</td>
+
+</tr>
+
+<% } %>
+
+<% requests.forEach(request=>{ %>
+
+<tr data-status="<%= request.status %>">
+
+<td>
+
+<%= request.houseNo %>
+
+</td>
+
+<td>
+
+<%= request.member ? request.member.name : "N/A" %>
+
+</td>
+
+<td>
+
+<span class="badge <%= request.status %>">
+
+<%= request.status.charAt(0).toUpperCase()+request.status.slice(1) %>
+
+</span>
+
+</td>
+
+<td>
+
+<%= new Date(request.requestedAt).toLocaleString() %>
+
+</td>
+
+<td>
+
+<% if(request.collector){ %>
+
+<%= request.collector.name %>
+
+<% } else { %>
+
+-
+
+<% } %>
+
+</td>
+
+<td>
+
+<% if(request.status==='pending'){ %>
+
+<form
+action="/head/requests/assign"
+method="POST"
+class="assignForm">
+
+<input
+type="hidden"
+name="requestId"
+value="<%= request._id %>">
+
+<select
+name="collectorId"
+required>
+
+<option value="">
+
+Choose Collector
+
+</option>
+
+<% collectors.forEach(c=>{ %>
+
+<option value="<%= c._id %>">
+
+<%= c.name %>
+
+</option>
+
+<% }) %>
+
+</select>
+
+<button>
+
+Assign
+
+</button>
+
+</form>
+
+<% } else { %>
+
+<span class="done">
+
+✔ Done
+
+</span>
+
+<% } %>
+
+</td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+<script>
+
+// SEARCH
+
+const search=document.getElementById("searchInput");
+
+search.addEventListener("keyup",()=>{
+
+const value=search.value.toLowerCase();
+
+document.querySelectorAll("#requestTable tbody tr")
+
+.forEach(row=>{
+
+row.style.display=
+
+row.innerText.toLowerCase().includes(value)
+
+? ""
+
+: "none";
+
+});
+
+});
+
+// FILTER
+
+document
+
+.getElementById("statusFilter")
+
+.addEventListener("change",function(){
+
+const value=this.value;
+
+document.querySelectorAll("#requestTable tbody tr")
+
+.forEach(row=>{
+
+if(value==="all"||row.dataset.status===value){
+
+row.style.display="";
+
+}
+
+else{
+
+row.style.display="none";
+
+}
+
+});
+
+});
+
+// Loading Button
+
+document.querySelectorAll(".assignForm")
+
+.forEach(form=>{
+
+form.addEventListener("submit",()=>{
+
+const btn=form.querySelector("button");
+
+btn.innerHTML="Assigning...";
+
+btn.disabled=true;
+
+});
+
+});
+
+</script>
+
+<%- include('../partials/footer') %>
+
 </body>
+
 </html>

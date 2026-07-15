@@ -1,87 +1,161 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
+
 const Society = require('../models/Society');
 const Member = require('../models/Member');
 const Collector = require('../models/Collector');
-const bcrypt = require('bcryptjs');
+
 const { ensureGuest } = require('../middleware/auth');
 
+// =======================
 // Login Page
+// =======================
 router.get('/login', ensureGuest, (req, res) => {
-    res.render('auth/login');
+    res.render('auth/login', {
+        title: 'Login - Bingo'
+    });
 });
 
+// =======================
 // Login Handle
-router.post('/login', async (req, res) => {
+// =======================
+router.post('/login', ensureGuest, async (req, res) => {
     const { email, password, role } = req.body;
-    
+
     try {
-        let user;
-        if (role === 'society') {
-            user = await Society.findOne({ email });
-        } else if (role === 'member') {
-            user = await Member.findOne({ email });
-        } else if (role === 'collector') {
-            user = await Collector.findOne({ email });
+
+        if (!email || !password || !role) {
+            return res.render('auth/login', {
+                title: 'Login - Bingo',
+                error: 'Please fill all fields.'
+            });
+        }
+
+        let user = null;
+
+        switch (role) {
+            case 'society':
+                user = await Society.findOne({ email });
+                break;
+
+            case 'member':
+                user = await Member.findOne({ email });
+                break;
+
+            case 'collector':
+                user = await Collector.findOne({ email });
+                break;
+
+            default:
+                return res.render('auth/login', {
+                    title: 'Login - Bingo',
+                    error: 'Invalid user role.'
+                });
         }
 
         if (!user) {
             return res.render('auth/login', {
-                error: 'No account found with this email'
+                title: 'Login - Bingo',
+                error: 'No account found with this email.'
             });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
+
         if (!isMatch) {
             return res.render('auth/login', {
-                error: 'Incorrect password'
+                title: 'Login - Bingo',
+                error: 'Incorrect password.'
             });
         }
 
         req.session.user = user;
         req.session.role = role;
-        
-        if (role === 'society') {
-            res.redirect('/head/dashboard');
-        } else if (role === 'member') {
-            res.redirect('/member/dashboard');
-        } else if (role === 'collector') {
-            res.redirect('/collector/dashboard');
+
+        switch (role) {
+            case 'society':
+                return res.redirect('/head/dashboard');
+
+            case 'member':
+                return res.redirect('/member/dashboard');
+
+            case 'collector':
+                return res.redirect('/collector/dashboard');
         }
+
     } catch (err) {
-        console.error(err);
+        console.error('Login Error:', err);
+
         res.render('auth/login', {
-            error: 'Server error'
+            title: 'Login - Bingo',
+            error: 'Something went wrong. Please try again.'
         });
     }
 });
 
+// =======================
 // Register Society Page
+// =======================
 router.get('/register-society', ensureGuest, (req, res) => {
-    res.render('auth/register-society');
+    res.render('auth/register-society', {
+        title: 'Register Society - Bingo'
+    });
 });
 
+// =======================
 // Register Society Handle
-router.post('/register-society', async (req, res) => {
-    const { name, address, city, pincode, headName, email, password, confirmPassword } = req.body;
-    
-    if (password !== confirmPassword) {
-        return res.render('auth/register-society', {
-            error: 'Passwords do not match'
-        });
-    }
+// =======================
+router.post('/register-society', ensureGuest, async (req, res) => {
+
+    const {
+        name,
+        address,
+        city,
+        pincode,
+        headName,
+        email,
+        password,
+        confirmPassword
+    } = req.body;
 
     try {
-        let society = await Society.findOne({ email });
-        if (society) {
+
+        if (
+            !name ||
+            !address ||
+            !city ||
+            !pincode ||
+            !headName ||
+            !email ||
+            !password ||
+            !confirmPassword
+        ) {
             return res.render('auth/register-society', {
-                error: 'Email already registered'
+                title: 'Register Society - Bingo',
+                error: 'Please fill all fields.'
+            });
+        }
+
+        if (password !== confirmPassword) {
+            return res.render('auth/register-society', {
+                title: 'Register Society - Bingo',
+                error: 'Passwords do not match.'
+            });
+        }
+
+        const existingSociety = await Society.findOne({ email });
+
+        if (existingSociety) {
+            return res.render('auth/register-society', {
+                title: 'Register Society - Bingo',
+                error: 'Email already registered.'
             });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        
-        society = new Society({
+
+        const society = new Society({
             name,
             address,
             city,
@@ -92,41 +166,80 @@ router.post('/register-society', async (req, res) => {
         });
 
         await society.save();
+
         res.redirect('/auth/login');
+
     } catch (err) {
-        console.error(err);
+
+        console.error('Register Society Error:', err);
+
         res.render('auth/register-society', {
-            error: 'Server error'
+            title: 'Register Society - Bingo',
+            error: 'Server error.'
         });
+
     }
+
 });
 
+// =======================
 // Register Collector Page
+// =======================
 router.get('/register-collector', ensureGuest, (req, res) => {
-    res.render('auth/register-collector');
+    res.render('auth/register-collector', {
+        title: 'Register Collector - Bingo'
+    });
 });
 
+// =======================
 // Register Collector Handle
-router.post('/register-collector', async (req, res) => {
-    const { name, email, phone, area, password, confirmPassword } = req.body;
-    
-    if (password !== confirmPassword) {
-        return res.render('auth/register-collector', {
-            error: 'Passwords do not match'
-        });
-    }
+// =======================
+router.post('/register-collector', ensureGuest, async (req, res) => {
+
+    const {
+        name,
+        email,
+        phone,
+        area,
+        password,
+        confirmPassword
+    } = req.body;
 
     try {
-        let collector = await Collector.findOne({ email });
-        if (collector) {
+
+        if (
+            !name ||
+            !email ||
+            !phone ||
+            !area ||
+            !password ||
+            !confirmPassword
+        ) {
             return res.render('auth/register-collector', {
-                error: 'Email already registered'
+                title: 'Register Collector - Bingo',
+                error: 'Please fill all fields.'
+            });
+        }
+
+        if (password !== confirmPassword) {
+            return res.render('auth/register-collector', {
+                title: 'Register Collector - Bingo',
+                error: 'Passwords do not match.'
+            });
+        }
+
+        const existingCollector = await Collector.findOne({ email });
+
+        if (existingCollector) {
+            return res.render('auth/register-collector', {
+                title: 'Register Collector - Bingo',
+                error: 'Email already registered.'
             });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        
-        collector = new Collector({
+
+        const collector = new Collector({
             name,
             email,
             phone,
@@ -135,25 +248,38 @@ router.post('/register-collector', async (req, res) => {
         });
 
         await collector.save();
+
         res.redirect('/auth/login');
+
     } catch (err) {
-        console.error(err);
+
+        console.error('Register Collector Error:', err);
+
         res.render('auth/register-collector', {
-            error: 'Server error'
+            title: 'Register Collector - Bingo',
+            error: 'Server error.'
         });
+
     }
+
 });
 
-router.get('/register-society', ensureGuest, (req, res) => {
-    res.render('auth/register-society', {
-        title: 'Register Society - Bingo'
-    });
-});
-
-// Logout Handle
+// =======================
+// Logout
+// =======================
 router.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
+
+    req.session.destroy(err => {
+
+        if (err) {
+            console.error(err);
+            return res.redirect('/');
+        }
+
+        res.clearCookie('connect.sid');
+        res.redirect('/');
+    });
+
 });
 
 module.exports = router;

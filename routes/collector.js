@@ -1,119 +1,97 @@
 const express = require('express');
 const router = express.Router();
+
 const { ensureCollector } = require('../middleware/auth');
 const Request = require('../models/Request');
 
-// // Dashboard
-// router.get('/dashboard', ensureCollector, async (req, res) => {
-//     try {
-//         const pendingRequests = await Request.find({
-//             collector: req.session.user._id,
-//             status: 'assigned'
-//         }).populate('member');
-        
-//         res.render('collector/dashboard', {
-//             user: req.session.user,
-//             pendingRequests
-//         });
-//     } catch (err) {
-//         console.error(err);
-//         res.redirect('/collector/dashboard');
-//     }
-// });
-
-// // Complete Request
-// router.post('/complete/:id', ensureCollector, async (req, res) => {
-//     try {
-//         await Request.findByIdAndUpdate(req.params.id, {
-//             status: 'completed',
-//             completedAt: Date.now()
-//         });
-        
-//         res.redirect('/collector/dashboard');
-//     } catch (err) {
-//         console.error(err);
-//         res.redirect('/collector/dashboard');
-//     }
-// });
-
-// router.get('/dashboard', ensureCollector, async (req, res) => {
-//     try {
-//         // Get current date at midnight
-//         const today = new Date();
-//         today.setHours(0, 0, 0, 0);
-
-//         // Get pending requests with society info
-//         const pendingRequests = await Request.find({
-//             collector: req.session.user._id,
-//             status: 'assigned'
-//         }).populate('society');
-
-//         // Get completion stats
-//         const [completedToday, totalCompleted] = await Promise.all([
-//             Request.countDocuments({
-//                 collector: req.session.user._id,
-//                 status: 'completed',
-//                 completedAt: { $gte: today }
-//             }),
-//             Request.countDocuments({
-//                 collector: req.session.user._id,
-//                 status: 'completed'
-//             })
-//         ]);
-
-//         res.render('collector/dashboard', {
-//             title: 'Collector Dashboard',
-//             user: req.session.user,
-//             pendingRequests,
-//             completedToday: completedToday || 0,  // Ensure it's never undefined
-//             totalCompleted: totalCompleted || 0   // Ensure it's never undefined
-//         });
-//     } catch (err) {
-//         console.error(err);
-//         res.redirect('/collector/dashboard');
-//     }
-// });
-
-
-
-
+// =======================
+// Collector Dashboard
+// =======================
 router.get('/dashboard', ensureCollector, async (req, res) => {
     try {
+        const collectorId = req.session.user._id;
+
+        // Today's date (00:00:00)
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const [pendingRequests, completedToday, totalCompleted] = await Promise.all([
-            Request.find({ collector: req.session.user._id, status: 'assigned' }).populate('society'),
-            Request.countDocuments({ 
-                collector: req.session.user._id,
-                status: 'completed',
-                completedAt: { $gte: today }
-            }),
-            Request.countDocuments({ 
-                collector: req.session.user._id,
-                status: 'completed' 
-            })
-        ]);
+        const [pendingRequests, completedToday, totalCompleted] =
+            await Promise.all([
+                Request.find({
+                    collector: collectorId,
+                    status: 'assigned'
+                })
+                .populate('member')
+                .populate('society'),
+
+                Request.countDocuments({
+                    collector: collectorId,
+                    status: 'completed',
+                    completedAt: { $gte: today }
+                }),
+
+                Request.countDocuments({
+                    collector: collectorId,
+                    status: 'completed'
+                })
+            ]);
 
         res.render('collector/dashboard', {
             title: 'Collector Dashboard',
             user: req.session.user,
-            pendingRequests: pendingRequests || [],
-            completedToday: completedToday || 0,
-            totalCompleted: totalCompleted || 0
+            pendingRequests,
+            completedToday,
+            totalCompleted
         });
 
     } catch (err) {
-        console.error('Dashboard error:', err);
-        res.render('collector/dashboard', {
+
+        console.error('Collector Dashboard Error:', err);
+
+        res.status(500).render('collector/dashboard', {
             title: 'Collector Dashboard',
             user: req.session.user,
             pendingRequests: [],
             completedToday: 0,
             totalCompleted: 0,
-            error: 'Failed to load dashboard data'
+            error: 'Failed to load dashboard.'
         });
+
     }
+});
+
+// =======================
+// Complete Request
+// =======================
+router.post('/complete/:id', ensureCollector, async (req, res) => {
+
+    try {
+
+        const request = await Request.findOne({
+            _id: req.params.id,
+            collector: req.session.user._id,
+            status: 'assigned'
+        });
+
+        if (!request) {
+            return res.redirect('/collector/dashboard');
+        }
+
+        request.status = 'completed';
+        request.completedAt = new Date();
+
+        await request.save();
+
+        res.redirect('/collector/dashboard');
+
+    } catch (err) {
+
+        console.error('Complete Request Error:', err);
+
+        res.redirect('/collector/dashboard');
+
+    }
+
 });
 
 module.exports = router;

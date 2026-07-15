@@ -1,22 +1,178 @@
-<header>
-    <div class="header-container">
-        <a href="/" class="logo">BinGo</a>
-        <nav class="nav-links">
+<header class="navbar">
+
+    <div class="nav-container">
+
+        <!-- Logo -->
+
+        <a href="/" class="logo">
+
+            <i class="fa-solid fa-recycle"></i>
+
+            <span>BinGo</span>
+
+        </a>
+
+        <!-- Mobile Menu -->
+
+        <div class="menu-toggle" id="menuToggle">
+
+            <i class="fa-solid fa-bars"></i>
+
+        </div>
+
+        <!-- Navigation -->
+
+        <nav id="navMenu">
+
             <ul>
-                <% if (typeof user === 'undefined' || !user) { %>
-                    <li><a href="/auth/login">Login</a></li>
-                    <li><a href="/auth/register-society">Register Society</a></li>
+
+                <% if (!user) { %>
+
+                    <li>
+                        <a href="/">
+                            <i class="fa-solid fa-house"></i>
+                            Home
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/about">
+                            <i class="fa-solid fa-circle-info"></i>
+                            About
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/auth/login">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                            Login
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/auth/register-society" class="register-btn">
+                            Register
+                        </a>
+                    </li>
+
                 <% } else { %>
-                    <% if (role === 'society') { %>
-                        <li><a href="/head/dashboard">Dashboard</a></li>
-                    <% } else if (role === 'member') { %>
-                        <li><a href="/member/dashboard">Dashboard</a></li>
-                    <% } else if (role === 'collector') { %>
-                        <li><a href="/collector/dashboard">Dashboard</a></li>
+
+                    <% if(role==='society'){ %>
+
+                        <li>
+
+                            <a href="/head/dashboard">
+
+                                <i class="fa-solid fa-gauge"></i>
+
+                                Dashboard
+
+                            </a>
+
+                        </li>
+
+                        <li>
+
+                            <a href="/head/members">
+
+                                <i class="fa-solid fa-users"></i>
+
+                                Members
+
+                            </a>
+
+                        </li>
+
+                        <li>
+
+                            <a href="/head/requests">
+
+                                <i class="fa-solid fa-trash"></i>
+
+                                Requests
+
+                            </a>
+
+                        </li>
+
                     <% } %>
-                    <li><a href="/auth/logout">Logout</a></li>
+
+                    <% if(role==='member'){ %>
+
+                        <li>
+
+                            <a href="/member/dashboard">
+
+                                <i class="fa-solid fa-gauge"></i>
+
+                                Dashboard
+
+                            </a>
+
+                        </li>
+
+                    <% } %>
+
+                    <% if(role==='collector'){ %>
+
+                        <li>
+
+                            <a href="/collector/dashboard">
+
+                                <i class="fa-solid fa-gauge"></i>
+
+                                Dashboard
+
+                            </a>
+
+                        </li>
+
+                    <% } %>
+
+                    <li class="user-name">
+
+                        <i class="fa-solid fa-user-circle"></i>
+
+                        <%= user.name || user.headName %>
+
+                    </li>
+
+                    <li>
+
+                        <a href="/auth/logout" class="logout-btn">
+
+                            <i class="fa-solid fa-right-from-bracket"></i>
+
+                            Logout
+
+                        </a>
+
+                    </li>
+
                 <% } %>
+
             </ul>
+
         </nav>
+
     </div>
+
 </header>
+
+<script>
+
+const toggle=document.getElementById("menuToggle");
+
+const nav=document.getElementById("navMenu");
+
+if(toggle){
+
+toggle.addEventListener("click",()=>{
+
+nav.classList.toggle("active");
+
+});
+
+}
+
+</script>

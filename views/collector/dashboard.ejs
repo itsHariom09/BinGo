@@ -1,69 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collector Dashboard - Bingo</title>
-    <link href="/css/style.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-    <%- include('../partials/header') %>
-    
-    <main class="collector-dashboard">
-        <h1>Welcome, <%= user.name %></h1>
-        <p class="collector-info">Service Area: <%= user.area %></p>
-        
-        <div class="requests-container">
-            <h2>Your Assigned Collections</h2>
-            
-            <% if (pendingRequests.length === 0) { %>
-                <div class="no-requests">
-                    <i class="fas fa-trash-alt"></i>
-                    <p>No pending collection requests</p>
-                </div>
-            <% } else { %>
-                <div class="request-cards">
-                    <% pendingRequests.forEach(request => { %>
-                        <div class="request-card">
-                            <div class="request-info">
-                                <h3><i class="fas fa-home"></i> <%= request.houseNo %></h3>
-                                <p><i class="fas fa-building"></i> <%= request.society.name %></p>
-                                <p><i class="fas fa-clock"></i> <%= new Date(request.requestedAt).toLocaleString() %></p>
-                            </div>
-                            <form action="/collector/complete/<%= request._id %>" method="POST" class="request-actions">
-                                <button type="submit" class="btn btn-complete">
-                                    <i class="fas fa-check"></i> Mark Complete
-                                </button>
-                            </form>
-                        </div>
-                    <% }); %>
-                </div>
-            <% } %>
-        </div>
-        
-        <div class="stats-container">
-            <div class="stat-card">
-                <h3>Completed Today</h3>
-                <p><%= completedToday %></p>
-            </div>
-            <div class="stat-card">
-                <h3>Total Completed</h3>
-                <p><%= totalCompleted %></p>
-            </div>
-        </div>
-        <div class="stats-container">
-    <div class="stat-card">
-        <h3>Completed Today</h3>
-        <p><%= typeof completedToday !== 'undefined' ? completedToday : 0 %></p>
-    </div>
-    <div class="stat-card">
-        <h3>Total Completed</h3>
-        <p><%= typeof totalCompleted !== 'undefined' ? totalCompleted : 0 %></p>
-    </div>
-</div>
-    </main>
 
-    <%- include('../partials/footer') %>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Collector Dashboard | Bingo</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/collector-dashboard.css">
+
+</head>
+
+<body>
+
+<%- include('../partials/header') %>
+
+<section class="dashboard">
+
+<div class="dashboard-header">
+
+<div>
+
+<h1>
+
+<i class="fa-solid fa-truck"></i>
+
+Welcome,
+<%= user.name %>
+
+</h1>
+
+<p>
+
+Service Area :
+<strong><%= user.area %></strong>
+
+</p>
+
+</div>
+
+<div class="profile-icon">
+
+<i class="fa-solid fa-user"></i>
+
+</div>
+
+</div>
+
+<!-- ========================= -->
+
+<div class="stats-grid">
+
+<div class="stat-card blue">
+
+<div>
+
+<h2>
+
+<%= completedToday %>
+
+</h2>
+
+<p>
+
+Completed Today
+
+</p>
+
+</div>
+
+<i class="fa-solid fa-circle-check"></i>
+
+</div>
+
+<div class="stat-card green">
+
+<div>
+
+<h2>
+
+<%= totalCompleted %>
+
+</h2>
+
+<p>
+
+Total Completed
+
+</p>
+
+</div>
+
+<i class="fa-solid fa-trash"></i>
+
+</div>
+
+<div class="stat-card orange">
+
+<div>
+
+<h2>
+
+<%= pendingRequests.length %>
+
+</h2>
+
+<p>
+
+Pending Requests
+
+</p>
+
+</div>
+
+<i class="fa-solid fa-hourglass-half"></i>
+
+</div>
+
+</div>
+
+<!-- ========================= -->
+
+<div class="request-section">
+
+<div class="section-title">
+
+<h2>
+
+Assigned Collection Requests
+
+</h2>
+
+</div>
+
+<% if(pendingRequests.length===0){ %>
+
+<div class="empty-card">
+
+<i class="fa-solid fa-box-open"></i>
+
+<h3>
+
+No Pending Requests
+
+</h3>
+
+<p>
+
+You're all caught up!
+
+</p>
+
+</div>
+
+<% } else { %>
+
+<div class="request-grid">
+
+<% pendingRequests.forEach(request=>{ %>
+
+<div class="request-card">
+
+<div class="request-top">
+
+<span class="status">
+
+Assigned
+
+</span>
+
+</div>
+
+<div class="request-info">
+
+<p>
+
+<i class="fa-solid fa-house"></i>
+
+<strong>House :</strong>
+
+<%= request.houseNo %>
+
+</p>
+
+<p>
+
+<i class="fa-solid fa-building"></i>
+
+<strong>Society :</strong>
+
+<%= request.society ? request.society.name : 'N/A' %>
+
+</p>
+
+<p>
+
+<i class="fa-solid fa-clock"></i>
+
+<strong>Requested :</strong>
+
+<%= new Date(request.requestedAt).toLocaleString() %>
+
+</p>
+
+</div>
+
+<form
+action="/collector/complete/<%= request._id %>"
+method="POST">
+
+<button class="complete-btn">
+
+<i class="fa-solid fa-check"></i>
+
+Mark Completed
+
+</button>
+
+</form>
+
+</div>
+
+<% }) %>
+
+</div>
+
+<% } %>
+
+</div>
+
+</section>
+
+<%- include('../partials/footer') %>
+
+<script>
+
+document.querySelectorAll("form").forEach(form=>{
+
+form.addEventListener("submit",()=>{
+
+const btn=form.querySelector("button");
+
+btn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Completing...';
+
+btn.disabled=true;
+
+});
+
+});
+
+</script>
+
 </body>
+
 </html>

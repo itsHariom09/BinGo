@@ -1,68 +1,367 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register as Collector - Bingo</title>
-    <link href="/css/style.css" rel="stylesheet">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Collector Registration | Bingo</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/register-collector.css">
+
 </head>
+
 <body>
-    <%- include('../partials/header') %>
-    
-    <main class="auth-container">
-        <h2>Register as Garbage Collector</h2>
-        
-        <% if (typeof error !== 'undefined') { %>
-            <div class="alert alert-danger"><%= error %></div>
-        <% } %>
-        
-        <form action="/auth/register-collector" method="POST">
-            <div class="form-group">
-                <label for="name">Full Name</label>
-                <input type="text" name="name" id="name" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" name="email" id="email" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" name="phone" id="phone" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="area">Service Area</label>
-                <select name="area" id="area" class="form-control" required>
-                    <option value="">Select your service area</option>
-                    <option value="North">North Zone</option>
-                    <option value="South">South Zone</option>
-                    <option value="East">East Zone</option>
-                    <option value="West">West Zone</option>
-                    <option value="Central">Central Zone</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
-                <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" required>
-            </div>
-            
-            <button type="submit" class="btn btn-primary btn-block">Register</button>
-        </form>
-        
-        <div class="auth-links">
-            <p>Already have an account? <a href="/auth/login">Login here</a></p>
-            <p>Register as <a href="/auth/register-society">Society Head</a> instead</p>
-        </div>
-    </main>
-    
-    <%- include('../partials/footer') %>
+
+<%- include('../partials/header') %>
+
+<section class="register-section">
+
+<div class="register-container">
+
+<!-- LEFT -->
+
+<div class="register-left">
+
+<div class="logo">
+
+<i class="fa-solid fa-recycle"></i>
+
+<h1>Bingo</h1>
+
+</div>
+
+<h2>Become a Smart Collector</h2>
+
+<p>
+
+Register yourself as a waste collector and manage collection requests digitally.
+
+</p>
+
+<div class="benefits">
+
+<div>
+
+<i class="fa-solid fa-truck"></i>
+
+<span>Digital Collection Requests</span>
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-location-dot"></i>
+
+<span>Area Wise Assignment</span>
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-clock"></i>
+
+<span>Real Time Dashboard</span>
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-award"></i>
+
+<span>Easy Request Tracking</span>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="register-right">
+
+<div class="form-card">
+
+<h2>Create Collector Account</h2>
+
+<p class="subtitle">
+
+Fill your details below
+
+</p>
+
+<% if(typeof error !== 'undefined'){ %>
+
+<div class="error-box">
+
+<i class="fa-solid fa-circle-exclamation"></i>
+
+<%= error %>
+
+</div>
+
+<% } %>
+
+<form
+action="/auth/register-collector"
+method="POST"
+id="collectorForm">
+
+<div class="form-group">
+
+<label>Full Name</label>
+
+<div class="input-box">
+
+<i class="fa-solid fa-user"></i>
+
+<input
+type="text"
+name="name"
+placeholder="Enter Full Name"
+required>
+
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>Email Address</label>
+
+<div class="input-box">
+
+<i class="fa-solid fa-envelope"></i>
+
+<input
+type="email"
+name="email"
+placeholder="Enter Email"
+required>
+
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>Phone Number</label>
+
+<div class="input-box">
+
+<i class="fa-solid fa-phone"></i>
+
+<input
+type="tel"
+name="phone"
+maxlength="10"
+pattern="[0-9]{10}"
+placeholder="9876543210"
+required>
+
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>Service Area</label>
+
+<div class="input-box">
+
+<i class="fa-solid fa-map-location-dot"></i>
+
+<select
+name="area"
+required>
+
+<option value="">Select Area</option>
+
+<option>North</option>
+
+<option>South</option>
+
+<option>East</option>
+
+<option>West</option>
+
+<option>Central</option>
+
+</select>
+
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>Password</label>
+
+<div class="input-box password-box">
+
+<i class="fa-solid fa-lock"></i>
+
+<input
+type="password"
+id="password"
+name="password"
+placeholder="Create Password"
+required>
+
+<span id="togglePassword">
+
+<i class="fa-solid fa-eye"></i>
+
+</span>
+
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>Confirm Password</label>
+
+<div class="input-box password-box">
+
+<i class="fa-solid fa-lock"></i>
+
+<input
+type="password"
+id="confirmPassword"
+name="confirmPassword"
+placeholder="Confirm Password"
+required>
+
+<span id="toggleConfirm">
+
+<i class="fa-solid fa-eye"></i>
+
+</span>
+
+</div>
+
+</div>
+
+<button
+class="register-btn"
+id="registerBtn">
+
+<i class="fa-solid fa-user-plus"></i>
+
+Create Account
+
+</button>
+
+</form>
+
+<div class="bottom-links">
+
+<p>
+
+Already have an account?
+
+<a href="/auth/login">
+
+Login
+
+</a>
+
+</p>
+
+<p>
+
+Register Society?
+
+<a href="/auth/register-society">
+
+Click Here
+
+</a>
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<%- include('../partials/footer') %>
+
+<script>
+
+function toggle(id,btn){
+
+const input=document.getElementById(id);
+
+const icon=btn.querySelector("i");
+
+if(input.type==="password"){
+
+input.type="text";
+
+icon.className="fa-solid fa-eye-slash";
+
+}
+
+else{
+
+input.type="password";
+
+icon.className="fa-solid fa-eye";
+
+}
+
+}
+
+document.getElementById("togglePassword")
+
+.onclick=function(){
+
+toggle("password",this);
+
+}
+
+document.getElementById("toggleConfirm")
+
+.onclick=function(){
+
+toggle("confirmPassword",this);
+
+}
+
+document
+
+.getElementById("collectorForm")
+
+.addEventListener("submit",()=>{
+
+document
+
+.getElementById("registerBtn")
+
+.innerHTML='<i class="fa fa-spinner fa-spin"></i> Creating Account...';
+
+});
+
+</script>
+
 </body>
+
 </html>

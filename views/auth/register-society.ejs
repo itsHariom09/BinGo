@@ -1,69 +1,394 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Society - Bingo</title>
-    <link href="/css/style.css" rel="stylesheet">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Register Society | Bingo</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/register-society.css">
+
 </head>
+
 <body>
-    <%- include('../partials/header') %>
-    
-    <main class="auth-container">
-        <h2>Register Your Society</h2>
-        <% if (typeof error !== 'undefined') { %>
-            <div class="alert alert-danger"><%= error %></div>
-        <% } %>
-        
-        <form action="/auth/register-society" method="POST">
-            <div class="form-group">
-                <label for="name">Society Name</label>
-                <input type="text" name="name" id="name" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="address">Address</label>
-                <input type="text" name="address" id="address" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="city">City</label>
-                <input type="text" name="city" id="city" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="pincode">Pincode</label>
-                <input type="text" name="pincode" id="pincode" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="headName">Head Name</label>
-                <input type="text" name="headName" id="headName" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" name="email" id="email" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
-                <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" required>
-            </div>
-            
-            <button type="submit" class="btn btn-primary btn-block">Register Society</button>
-        </form>
-        
-        <div class="auth-links">
-            <p>Already have an account? <a href="/auth/login">Login here</a></p>
-        </div>
-    </main>
-    
-    <%- include('../partials/footer') %>
+
+<%- include('../partials/header') %>
+
+<section class="register-section">
+
+<div class="register-container">
+
+<!-- LEFT -->
+
+<div class="register-left">
+
+<div class="logo">
+
+<i class="fa-solid fa-building"></i>
+
+<h1>Bingo</h1>
+
+</div>
+
+<h2>Register Your Society</h2>
+
+<p>
+
+Create your society account and manage members,
+garbage requests and collectors digitally.
+
+</p>
+
+<div class="benefits">
+
+<div>
+
+<i class="fa-solid fa-users"></i>
+
+<span>Manage Society Members</span>
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-trash"></i>
+
+<span>Track Waste Requests</span>
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-user-check"></i>
+
+<span>Assign Collectors</span>
+
+</div>
+
+<div>
+
+<i class="fa-solid fa-chart-line"></i>
+
+<span>View Collection Reports</span>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="register-right">
+
+<div class="form-card">
+
+<h2>Create Society Account</h2>
+
+<p class="subtitle">
+
+Fill all required information
+
+</p>
+
+<% if(typeof error !== 'undefined'){ %>
+
+<div class="error-box">
+
+<i class="fa-solid fa-circle-exclamation"></i>
+
+<%= error %>
+
+</div>
+
+<% } %>
+
+<form
+action="/auth/register-society"
+method="POST"
+id="societyForm">
+
+<div class="grid">
+
+<div class="form-group">
+
+<label>Society Name</label>
+
+<div class="input-box">
+
+<i class="fa-solid fa-building"></i>
+
+<input
+type="text"
+name="name"
+placeholder="Society Name"
+required>
+
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>Head Name</label>
+
+<div class="input-box">
+
+<i class="fa-solid fa-user"></i>
+
+<input
+type="text"
+name="headName"
+placeholder="Society Head"
+required>
+
+</div>
+
+</div>
+
+<div class="form-group full">
+
+<label>Address</label>
+
+<div class="input-box">
+
+<i class="fa-solid fa-location-dot"></i>
+
+<textarea
+name="address"
+rows="3"
+placeholder="Enter Society Address"
+required></textarea>
+
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>City</label>
+
+<div class="input-box">
+
+<i class="fa-solid fa-city"></i>
+
+<input
+type="text"
+name="city"
+placeholder="City"
+required>
+
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>Pincode</label>
+
+<div class="input-box">
+
+<i class="fa-solid fa-map-pin"></i>
+
+<input
+type="text"
+name="pincode"
+maxlength="6"
+pattern="[0-9]{6}"
+placeholder="Pincode"
+required>
+
+</div>
+
+</div>
+
+<div class="form-group full">
+
+<label>Email</label>
+
+<div class="input-box">
+
+<i class="fa-solid fa-envelope"></i>
+
+<input
+type="email"
+name="email"
+placeholder="Email Address"
+required>
+
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>Password</label>
+
+<div class="input-box password-box">
+
+<i class="fa-solid fa-lock"></i>
+
+<input
+type="password"
+id="password"
+name="password"
+placeholder="Create Password"
+required>
+
+<span id="togglePassword">
+
+<i class="fa-solid fa-eye"></i>
+
+</span>
+
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>Confirm Password</label>
+
+<div class="input-box password-box">
+
+<i class="fa-solid fa-lock"></i>
+
+<input
+type="password"
+id="confirmPassword"
+name="confirmPassword"
+placeholder="Confirm Password"
+required>
+
+<span id="toggleConfirm">
+
+<i class="fa-solid fa-eye"></i>
+
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+<button
+class="register-btn"
+id="registerBtn">
+
+<i class="fa-solid fa-user-plus"></i>
+
+Register Society
+
+</button>
+
+</form>
+
+<div class="bottom-links">
+
+<p>
+
+Already have an account?
+
+<a href="/auth/login">
+
+Login
+
+</a>
+
+</p>
+
+<p>
+
+Want to register as Collector?
+
+<a href="/auth/register-collector">
+
+Click Here
+
+</a>
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<%- include('../partials/footer') %>
+
+<script>
+
+function toggle(id,btn){
+
+const input=document.getElementById(id);
+
+const icon=btn.querySelector("i");
+
+if(input.type==="password"){
+
+input.type="text";
+
+icon.className="fa-solid fa-eye-slash";
+
+}else{
+
+input.type="password";
+
+icon.className="fa-solid fa-eye";
+
+}
+
+}
+
+document.getElementById("togglePassword")
+
+.onclick=function(){
+
+toggle("password",this);
+
+}
+
+document.getElementById("toggleConfirm")
+
+.onclick=function(){
+
+toggle("confirmPassword",this);
+
+}
+
+document
+
+.getElementById("societyForm")
+
+.addEventListener("submit",()=>{
+
+document
+
+.getElementById("registerBtn")
+
+.innerHTML='<i class="fa fa-spinner fa-spin"></i> Creating Account...';
+
+});
+
+</script>
+
 </body>
+
 </html>

@@ -1,70 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Dashboard - Bingo</title>
-    <link href="/css/style.css" rel="stylesheet">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Member Dashboard | Bingo</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/member-dashboard.css">
+
 </head>
+
 <body>
-    <%- include('../partials/header') %>
-    
-    <main class="dashboard-container">
-        <h1>Welcome, <%= user.name %></h1>
-        <p class="member-info">House No: <%= user.houseNo %></p>
-        
-        <div class="request-section">
-            <h2>Garbage Collection Requests</h2>
-            
-            <button id="newRequestBtn" class="btn btn-primary">New Collection Request</button>
-            
-            <div class="request-form" id="requestForm" style="display: none;">
-                <form action="/member/request" method="POST">
-                    <div class="form-group">
-                        <label>House Number</label>
-                        <input type="text" value="<%= user.houseNo %>" disabled class="form-control">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit Request</button>
-                </form>
-            </div>
-            
-            <table class="requests-table">
-                <thead>
-                    <tr>
-                        <th>Request Date</th>
-                        <th>Status</th>
-                        <th>Collector</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% requests.forEach(request => { %>
-                        <tr>
-                            <td><%= new Date(request.requestedAt).toLocaleString() %></td>
-                            <td class="status-<%= request.status %>">
-                                <%= request.status.charAt(0).toUpperCase() + request.status.slice(1) %>
-                            </td>
-                            <td>
-                                <% if (request.collector) { %>
-                                    <%= request.collector.name %>
-                                <% } else { %>
-                                    Not assigned
-                                <% } %>
-                            </td>
-                        </tr>
-                    <% }); %>
-                </tbody>
-            </table>
-        </div>
-    </main>
 
-    <script>
-        // Toggle request form visibility
-        document.getElementById('newRequestBtn').addEventListener('click', function() {
-            const form = document.getElementById('requestForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        });
-    </script>
+<%- include('../partials/header') %>
 
-    <%- include('../partials/footer') %>
+<section class="dashboard">
+
+<!-- ================= HEADER ================= -->
+
+<div class="dashboard-header">
+
+<div>
+
+<h1>
+
+<i class="fa-solid fa-user"></i>
+
+Welcome,
+<%= user.name %>
+
+</h1>
+
+<p>
+
+House Number :
+<strong><%= user.houseNo %></strong>
+
+</p>
+
+</div>
+
+<div class="profile-icon">
+
+<i class="fa-solid fa-house-user"></i>
+
+</div>
+
+</div>
+
+<!-- ================= STATS ================= -->
+
+<div class="stats-grid">
+
+<div class="stat-card blue">
+
+<div>
+
+<h2>
+
+<%= requests.length %>
+
+</h2>
+
+<p>
+
+Total Requests
+
+</p>
+
+</div>
+
+<i class="fa-solid fa-trash"></i>
+
+</div>
+
+<div class="stat-card green">
+
+<div>
+
+<h2>
+
+<%= requests.filter(r=>r.status==='completed').length %>
+
+</h2>
+
+<p>
+
+Completed
+
+</p>
+
+</div>
+
+<i class="fa-solid fa-circle-check"></i>
+
+</div>
+
+<div class="stat-card orange">
+
+<div>
+
+<h2>
+
+<%= requests.filter(r=>r.status==='pending' || r.status==='assigned').length %>
+
+</h2>
+
+<p>
+
+Active Requests
+
+</p>
+
+</div>
+
+<i class="fa-solid fa-clock"></i>
+
+</div>
+
+</div>
+
+<!-- ================= NEW REQUEST ================= -->
+
+<div class="request-box">
+
+<div class="request-header">
+
+<h2>
+
+New Garbage Collection Request
+
+</h2>
+
+<button
+id="toggleForm"
+class="request-btn">
+
+<i class="fa-solid fa-plus"></i>
+
+Request Pickup
+
+</button>
+
+</div>
+
+<div
+id="requestForm"
+class="request-form">
+
+<form
+action="/member/request"
+method="POST"
+id="pickupForm">
+
+<div class="house-box">
+
+<label>
+
+House Number
+
+</label>
+
+<input
+type="text"
+value="<%= user.houseNo %>"
+disabled>
+
+</div>
+
+<button
+id="submitBtn"
+class="submit-btn">
+
+<i class="fa-solid fa-paper-plane"></i>
+
+Submit Request
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+<!-- ================= TABLE ================= -->
+
+<div class="table-card">
+
+<h2>
+
+Recent Requests
+
+</h2>
+
+<table id="requestTable">
+
+<thead>
+
+<tr>
+
+<th>Date</th>
+
+<th>Status</th>
+
+<th>Collector</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<% if(requests.length===0){ %>
+
+<tr>
+
+<td colspan="3">
+
+<div class="empty">
+
+<i class="fa-solid fa-box-open"></i>
+
+<p>
+
+No Requests Yet
+
+</p>
+
+</div>
+
+</td>
+
+</tr>
+
+<% } %>
+
+<% requests.forEach(request=>{ %>
+
+<tr>
+
+<td>
+
+<%= new Date(request.requestedAt).toLocaleString() %>
+
+</td>
+
+<td>
+
+<span class="badge <%= request.status %>">
+
+<%= request.status.charAt(0).toUpperCase()+request.status.slice(1) %>
+
+</span>
+
+</td>
+
+<td>
+
+<%= request.collector ? request.collector.name : "Not Assigned" %>
+
+</td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+<script>
+
+const form=document.getElementById("requestForm");
+
+document.getElementById("toggleForm").onclick=()=>{
+
+form.classList.toggle("show");
+
+}
+
+document.getElementById("pickupForm").addEventListener("submit",()=>{
+
+document.getElementById("submitBtn").innerHTML=
+
+'<i class="fa fa-spinner fa-spin"></i> Sending...';
+
+});
+
+</script>
+
+<%- include('../partials/footer') %>
+
 </body>
+
 </html>

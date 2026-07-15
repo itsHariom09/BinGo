@@ -1,73 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Members - Bingo</title>
-    <link href="/css/style.css" rel="stylesheet">
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Manage Members | Bingo</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<link rel="stylesheet" href="/css/style.css">
+
+<link rel="stylesheet" href="/css/head-members.css">
+
 </head>
+
 <body>
-    <%- include('../partials/header') %>
-    
-    <main class="containerx">
-        <h1>Society Members</h1>
-        
-        <div class="member-actions">
-            <button id="addMemberBtn" class="btn btn-primary">Add New Member</button>
-        </div>
 
-        <div class="member-form" id="memberForm" style="display: none;">
-            <h2>Add Member</h2>
-            <form action="/head/members" method="POST">
-                <div class="form-group">
-                    <label for="name">Member Name</label>
-                    <input type="text" name="name" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="houseNo">House Number</label>
-                    <input type="text" name="houseNo" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" name="email" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" name="password" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Add Member</button>
-            </form>
-        </div>
+<%- include('../partials/header') %>
 
-        <table class="members-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>House No.</th>
-                    <th>Email</th>
-                    <th>Joined On</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% members.forEach(member => { %>
-                    <tr>
-                        <td><%= member.name %></td>
-                        <td><%= member.houseNo %></td>
-                        <td><%= member.email %></td>
-                        <td><%= new Date(member.createdAt).toLocaleDateString() %></td>
-                    </tr>
-                <% }); %>
-            </tbody>
-        </table>
-    </main>
+<section class="members-page">
 
-    <script>
-        document.getElementById('addMemberBtn').addEventListener('click', function() {
-            const form = document.getElementById('memberForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        });
-    </script>
+<!-- HEADER -->
 
-    <%- include('../partials/footer') %>
+<div class="page-header">
+
+<div>
+
+<h1>
+
+<i class="fa-solid fa-users"></i>
+
+Society Members
+
+</h1>
+
+<p>
+
+Manage all members of your society.
+
+</p>
+
+</div>
+
+<div class="member-count">
+
+<h2>
+
+<%= members.length %>
+
+</h2>
+
+<span>Total Members</span>
+
+</div>
+
+</div>
+
+<!-- SEARCH -->
+
+<div class="top-actions">
+
+<div class="search-box">
+
+<i class="fa-solid fa-search"></i>
+
+<input
+type="text"
+id="searchInput"
+placeholder="Search member...">
+
+</div>
+
+<button
+id="toggleForm"
+class="add-btn">
+
+<i class="fa-solid fa-user-plus"></i>
+
+Add Member
+
+</button>
+
+</div>
+
+<!-- FORM -->
+
+<div
+class="member-form"
+id="memberForm">
+
+<h2>
+
+Add New Member
+
+</h2>
+
+<form
+action="/head/members"
+method="POST"
+id="addMemberForm">
+
+<div class="grid">
+
+<div class="form-group">
+
+<label>Name</label>
+
+<input
+type="text"
+name="name"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>House No</label>
+
+<input
+type="text"
+name="houseNo"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Email</label>
+
+<input
+type="email"
+name="email"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Password</label>
+
+<input
+type="password"
+name="password"
+required>
+
+</div>
+
+</div>
+
+<button
+id="submitBtn"
+class="submit-btn">
+
+<i class="fa-solid fa-plus"></i>
+
+Add Member
+
+</button>
+
+</form>
+
+</div>
+
+<!-- TABLE -->
+
+<div class="table-card">
+
+<table id="memberTable">
+
+<thead>
+
+<tr>
+
+<th>Name</th>
+
+<th>House</th>
+
+<th>Email</th>
+
+<th>Joined</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<% if(members.length===0){ %>
+
+<tr>
+
+<td colspan="4">
+
+<div class="empty">
+
+<i class="fa-solid fa-users"></i>
+
+<p>
+
+No Members Added Yet
+
+</p>
+
+</div>
+
+</td>
+
+</tr>
+
+<% } %>
+
+<% members.forEach(member=>{ %>
+
+<tr>
+
+<td>
+
+<div class="member-info">
+
+<div class="avatar">
+
+<%= member.name.charAt(0).toUpperCase() %>
+
+</div>
+
+<div>
+
+<strong>
+
+<%= member.name %>
+
+</strong>
+
+</div>
+
+</div>
+
+</td>
+
+<td>
+
+<%= member.houseNo %>
+
+</td>
+
+<td>
+
+<%= member.email %>
+
+</td>
+
+<td>
+
+<%= new Date(member.createdAt).toLocaleDateString() %>
+
+</td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+<script>
+
+// Toggle Form
+
+const btn=document.getElementById("toggleForm");
+
+const form=document.getElementById("memberForm");
+
+btn.onclick=()=>{
+
+form.classList.toggle("show");
+
+}
+
+// Loading Button
+
+document
+
+.getElementById("addMemberForm")
+
+.addEventListener("submit",()=>{
+
+document.getElementById("submitBtn").innerHTML=
+
+'<i class="fa fa-spinner fa-spin"></i> Adding...';
+
+});
+
+// Search
+
+document
+
+.getElementById("searchInput")
+
+.addEventListener("keyup",function(){
+
+const value=this.value.toLowerCase();
+
+const rows=document.querySelectorAll("#memberTable tbody tr");
+
+rows.forEach(row=>{
+
+row.style.display=row.innerText.toLowerCase().includes(value)
+
+? ""
+
+: "none";
+
+});
+
+});
+
+</script>
+
+<%- include('../partials/footer') %>
+
 </body>
+
 </html>

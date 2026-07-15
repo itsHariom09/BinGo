@@ -1,34 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Society Dashboard - Bingo</title>
-    <link href="/css/style.css" rel="stylesheet">
+
+    <title>Society Dashboard | Bingo</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/head-dashboard.css">
+
 </head>
+
 <body>
-    <%- include('../partials/header') %>
-    
-    <main class="dashboard-container">
-        <h1>Society Head Dashboard</h1>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Total Members</h3>
-                <p><%= members %></p>
-            </div>
-            <div class="stat-card">
-                <h3>Pending Requests</h3>
-                <p><%= pendingRequests %></p>
-            </div>
+
+<%- include('../partials/header') %>
+
+<section class="dashboard">
+
+    <!-- ================= HEADER ================= -->
+
+    <div class="dashboard-header">
+
+        <div>
+
+            <h1>
+
+                <i class="fa-solid fa-building"></i>
+
+                Welcome,
+                <%= user.headName || user.name %>
+
+            </h1>
+
+            <p>
+
+                Society :
+                <strong><%= user.name %></strong>
+
+            </p>
+
+            <span>
+
+                <i class="fa-solid fa-location-dot"></i>
+
+                <%= user.city %>
+
+            </span>
+
         </div>
-        
-        <div class="dashboard-actions">
-            <a href="/head/members" class="btn btn-primary">Manage Members</a>
-            <a href="/head/requests" class="btn btn-secondary">View Requests</a>
+
+        <div class="profile-circle">
+
+            <i class="fa-solid fa-user"></i>
+
         </div>
-    </main>
-    
-    <%- include('../partials/footer') %>
+
+    </div>
+
+    <!-- ================= KPI ================= -->
+
+    <div class="stats-grid">
+
+        <div class="stat-card blue">
+
+            <div>
+
+                <h2><%= members %></h2>
+
+                <p>Total Members</p>
+
+            </div>
+
+            <i class="fa-solid fa-users"></i>
+
+        </div>
+
+        <div class="stat-card orange">
+
+            <div>
+
+                <h2><%= pendingRequests %></h2>
+
+                <p>Pending Requests</p>
+
+            </div>
+
+            <i class="fa-solid fa-trash"></i>
+
+        </div>
+
+        <div class="stat-card green">
+
+            <div>
+
+                <h2>
+
+                    <%= members + pendingRequests %>
+
+                </h2>
+
+                <p>Total Activities</p>
+
+            </div>
+
+            <i class="fa-solid fa-chart-line"></i>
+
+        </div>
+
+    </div>
+
+    <!-- ================= QUICK ACTION ================= -->
+
+    <div class="quick-actions">
+
+        <h2>
+
+            Quick Actions
+
+        </h2>
+
+        <div class="action-grid">
+
+            <a href="/head/members" class="action-card">
+
+                <i class="fa-solid fa-users"></i>
+
+                <h3>Manage Members</h3>
+
+                <p>
+
+                    Add, remove and manage all society members.
+
+                </p>
+
+            </a>
+
+            <a href="/head/requests" class="action-card">
+
+                <i class="fa-solid fa-trash-arrow-up"></i>
+
+                <h3>Waste Requests</h3>
+
+                <p>
+
+                    Assign collectors and manage pickup requests.
+
+                </p>
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- ================= SUMMARY ================= -->
+
+    <div class="summary">
+
+        <div class="summary-card">
+
+            <h3>
+
+                Dashboard Summary
+
+            </h3>
+
+            <p>
+
+                Welcome to your Society Dashboard.
+
+                From here you can manage members,
+                assign collectors and monitor
+                all waste collection requests.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<%- include('../partials/footer') %>
+
 </body>
+
 </html>
