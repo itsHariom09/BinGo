@@ -6,6 +6,7 @@ const { ensureHead } = require('../middleware/auth');
 const Member = require('../models/Member');
 const Request = require('../models/Request');
 const Collector = require('../models/Collector');
+const Society = require('../models/Society');
 
 // =======================
 // Dashboard
@@ -132,19 +133,29 @@ router.get('/requests', ensureHead, async (req, res) => {
 
     try {
 
+        const city = req.session.user.city;
+
         const [requests, collectors] = await Promise.all([
 
             Request.find({
                 society: req.session.user._id
             })
-                .populate('member')
-                .populate('collector'),
+            .populate('member')
+            .populate('collector')
+            .sort({ requestedAt: -1 }),
 
             Collector.find({
-                area: req.session.user.city
+                location: {
+                    $regex: city,
+                    $options: 'i'
+                }
             })
+            .select('name phone location address')
 
         ]);
+
+        console.log('Society City:', city);
+        console.log('Matching Collectors:', collectors);
 
         res.render('head/requests', {
             title: 'Waste Requests',
@@ -178,16 +189,48 @@ router.post('/requests/assign', ensureHead, async (req, res) => {
 
     try {
 
+        // Find request belonging to this society
         const request = await Request.findOne({
             _id: requestId,
-            society: req.session.user._id
+            society: req.session.user._id,
+            status: 'pending'
         });
 
         if (!request) {
             return res.redirect('/head/requests');
         }
 
-        request.collector = collectorId;
+        // Find collector
+        const collector = await Collector.findOne({
+            _id: collectorId
+        });
+
+        if (!collector) {
+            return res.redirect('/head/requests');
+        }
+
+        // Check collector location with society/request location
+        const requestLocation = request.location
+            .trim()
+            .toLowerCase();
+
+        const collectorLocation = collector.location
+            .trim()
+            .toLowerCase();
+
+        if (!collectorLocation.includes(requestLocation)) {
+
+            console.log(
+                'Collector location does not match request location.'
+            );
+
+            return res.redirect('/head/requests');
+
+        }
+
+        // Assign collector
+        request.collector = collector._id;
+
         request.status = 'assigned';
 
         await request.save();

@@ -200,7 +200,8 @@ router.post('/register-collector', ensureGuest, async (req, res) => {
         name,
         email,
         phone,
-        area,
+        location,
+        address,
         password,
         confirmPassword
     } = req.body;
@@ -211,7 +212,8 @@ router.post('/register-collector', ensureGuest, async (req, res) => {
             !name ||
             !email ||
             !phone ||
-            !area ||
+            !location ||
+            !address ||
             !password ||
             !confirmPassword
         ) {
@@ -243,7 +245,8 @@ router.post('/register-collector', ensureGuest, async (req, res) => {
             name,
             email,
             phone,
-            area,
+            location,
+            address,
             password: hashedPassword
         });
 

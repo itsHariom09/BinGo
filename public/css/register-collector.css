@@ -174,7 +174,8 @@ body{
 }
 
 .input-box input,
-.input-box select{
+.input-box select,
+.input-box textarea{
     width:100%;
     padding:15px 16px 15px 48px;
     border:1px solid #d1d5db;

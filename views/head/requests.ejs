@@ -132,17 +132,13 @@ placeholder="Search House / Member...">
 
 <tr>
 
-<th>House</th>
-
-<th>Member</th>
-
-<th>Status</th>
-
-<th>Date</th>
-
-<th>Collector</th>
-
-<th>Action</th>
+    <th>House</th>
+    <th>Location</th>
+    <th>Member</th>
+    <th>Status</th>
+    <th>Date</th>
+    <th>Collector</th>
+    <th>Action</th>
 
 </tr>
 
@@ -154,7 +150,7 @@ placeholder="Search House / Member...">
 
 <tr>
 
-<td colspan="6">
+<td colspan="7">
 
 <div class="empty">
 
@@ -177,6 +173,14 @@ placeholder="Search House / Member...">
 <td>
 
 <%= request.houseNo %>
+
+</td>
+
+<td>
+
+<i class="fa-solid fa-location-dot"></i>
+
+<%= request.location %>
 
 </td>
 
@@ -244,7 +248,7 @@ Choose Collector
 
 <option value="<%= c._id %>">
 
-<%= c.name %>
+<%= c.name %> — <%= c.location %>
 
 </option>
 
