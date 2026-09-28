@@ -129,11 +129,63 @@ router.post('/members', ensureHead, async (req, res) => {
 // =======================
 // Requests
 // =======================
+// router.get('/requests', ensureHead, async (req, res) => {
+
+//     try {
+
+//         const city = req.session.user.city;
+
+//         const [requests, collectors] = await Promise.all([
+
+//             Request.find({
+//                 society: req.session.user._id
+//             })
+//             .populate('member')
+//             .populate('collector')
+//             .sort({ requestedAt: -1 }),
+
+//             Collector.find({
+//                 location: {
+//                     $regex: city,
+//                     $options: 'i'
+//                 }
+//             })
+//             .select('name phone location address')
+
+//         ]);
+
+//         console.log('Society City:', city);
+//         console.log('Matching Collectors:', collectors);
+
+//         res.render('head/requests', {
+//             title: 'Waste Requests',
+//             user: req.session.user,
+//             requests,
+//             collectors
+//         });
+
+//     } catch (err) {
+
+//         console.error('Requests Error:', err);
+
+//         res.status(500).render('head/requests', {
+//             title: 'Waste Requests',
+//             user: req.session.user,
+//             requests: [],
+//             collectors: [],
+//             error: 'Failed to load requests.'
+//         });
+
+//     }
+
+// });
+
+
+
+
 router.get('/requests', ensureHead, async (req, res) => {
 
     try {
-
-        const city = req.session.user.city;
 
         const [requests, collectors] = await Promise.all([
 
@@ -144,18 +196,14 @@ router.get('/requests', ensureHead, async (req, res) => {
             .populate('collector')
             .sort({ requestedAt: -1 }),
 
-            Collector.find({
-                location: {
-                    $regex: city,
-                    $options: 'i'
-                }
-            })
-            .select('name phone location address')
+            // TEMPORARY: all collectors
+            Collector.find({})
+                .select('name phone location address')
 
         ]);
 
-        console.log('Society City:', city);
-        console.log('Matching Collectors:', collectors);
+        console.log('Society City:', req.session.user.city);
+        console.log('Collectors:', collectors);
 
         res.render('head/requests', {
             title: 'Waste Requests',
