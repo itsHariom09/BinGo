@@ -130,10 +130,7 @@ router.post('/members', ensureHead, async (req, res) => {
 // Requests
 // =======================
 router.get('/requests', ensureHead, async (req, res) => {
-
     try {
-
-        const city = req.session.user.city;
 
         const [requests, collectors] = await Promise.all([
 
@@ -144,18 +141,14 @@ router.get('/requests', ensureHead, async (req, res) => {
             .populate('collector')
             .sort({ requestedAt: -1 }),
 
-            Collector.find({
-                location: {
-                    $regex: city,
-                    $options: 'i'
-                }
-            })
-            .select('name phone location address')
-
+            Collector.find({})
+                .select('name phone location address')
         ]);
 
-        console.log('Society City:', city);
-        console.log('Matching Collectors:', collectors);
+        console.log('Society ID:', req.session.user._id);
+        console.log('Society City:', req.session.user.city);
+        console.log('Collectors Count:', collectors.length);
+        console.log('Collectors:', collectors);
 
         res.render('head/requests', {
             title: 'Waste Requests',
@@ -175,9 +168,7 @@ router.get('/requests', ensureHead, async (req, res) => {
             collectors: [],
             error: 'Failed to load requests.'
         });
-
     }
-
 });
 
 
@@ -237,7 +228,6 @@ router.post('/requests/assign', ensureHead, async (req, res) => {
 
     try {
 
-        // Find request belonging to this society
         const request = await Request.findOne({
             _id: requestId,
             society: req.session.user._id,
@@ -245,43 +235,46 @@ router.post('/requests/assign', ensureHead, async (req, res) => {
         });
 
         if (!request) {
+            console.log('Request not found:', requestId);
             return res.redirect('/head/requests');
         }
 
-        // Find collector
-        const collector = await Collector.findOne({
-            _id: collectorId
-        });
+        const collector = await Collector.findById(collectorId);
 
         if (!collector) {
+            console.log('Collector not found:', collectorId);
             return res.redirect('/head/requests');
         }
 
-        // Check collector location with society/request location
-        const requestLocation = request.location
-            .trim()
-            .toLowerCase();
+        // Location check only if both locations exist
+        if (request.location && collector.location) {
 
-        const collectorLocation = collector.location
-            .trim()
-            .toLowerCase();
+            const requestLocation = request.location
+                .trim()
+                .toLowerCase();
 
-        if (!collectorLocation.includes(requestLocation)) {
+            const collectorLocation = collector.location
+                .trim()
+                .toLowerCase();
 
-            console.log(
-                'Collector location does not match request location.'
-            );
+            if (!collectorLocation.includes(requestLocation)) {
 
-            return res.redirect('/head/requests');
+                console.log('Location mismatch');
+                console.log('Request:', requestLocation);
+                console.log('Collector:', collectorLocation);
 
+                return res.redirect('/head/requests');
+            }
         }
 
-        // Assign collector
         request.collector = collector._id;
-
         request.status = 'assigned';
 
         await request.save();
+
+        console.log(
+            `Collector ${collector.name} assigned to request ${request._id}`
+        );
 
         res.redirect('/head/requests');
 
@@ -290,9 +283,7 @@ router.post('/requests/assign', ensureHead, async (req, res) => {
         console.error('Assign Collector Error:', err);
 
         res.redirect('/head/requests');
-
     }
-
 });
 
 module.exports = router;
