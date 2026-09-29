@@ -44,6 +44,7 @@ router.post('/request', ensureMember, async (req, res) => {
 
     try {
 
+        // Check if member already has a pending request
         const existingRequest = await Request.findOne({
             member: req.session.user._id,
             status: { $in: ['pending', 'assigned'] }
@@ -53,32 +54,16 @@ router.post('/request', ensureMember, async (req, res) => {
             return res.redirect('/member/dashboard');
         }
 
-        const society = await Society.findById(
-            req.session.user.society
-        );
-
-        if (!society) {
-            console.error('Society not found for member.');
-            return res.redirect('/member/dashboard');
-        }
+        const society = await Society.findById(req.session.user.society);
 
         const request = new Request({
-
-        member: req.session.user._id,
-
-        society: society._id,
-
-        houseNo: req.session.user.houseNo,
-
-        location: society.city,
-
-        address: society.address,
-
-        status: 'pending',
-
-        requestedAt: new Date()
-
-    });
+            member: req.session.user._id,
+            society: req.session.user.society,
+            houseNo: req.session.user.houseNo,
+            location: society ? `${society.address}, ${society.city}` : req.session.user.houseNo,
+            status: 'pending',
+            requestedAt: new Date()
+        });
 
         await request.save();
 

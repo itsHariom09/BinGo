@@ -3,45 +3,61 @@ const mongoose = require('mongoose');
 const CollectorSchema = new mongoose.Schema({
 
     name: {
+
         type: String,
-        required: true,
-        trim: true
+
+        required: true
+
     },
 
     email: {
+
         type: String,
+
         required: true,
-        unique: true,
-        lowercase: true,
-        trim: true
+
+        unique: true
+
     },
 
     password: {
+
         type: String,
+
         required: true
+
     },
 
     phone: {
+
         type: String,
-        required: true,
-        trim: true
+
+        required: true
+
     },
 
     location: {
+
         type: String,
-        required: true,
-        trim: true
+
+        required: true
+
     },
 
     address: {
+
         type: String,
-        required: true,
-        trim: true
+
+        required: true
+
     },
 
     createdAt: {
+
         type: Date,
+
         default: Date.now
+
     }
 
 });
