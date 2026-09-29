@@ -128,98 +128,48 @@ router.post('/members', ensureHead, async (req, res) => {
 // =======================
 // Requests
 // =======================
-router.post('/request', ensureMember, async (req, res) => {
+router.get('/requests', ensureHead, async (req, res) => {
+
     try {
 
-        console.log('\n========== CREATE REQUEST ==========');
+        const [requests, collectors] = await Promise.all([
 
-        console.log('SESSION USER:', req.session.user);
-        console.log('USER ID:', req.session.user?._id);
-        console.log('SOCIETY ID:', req.session.user?.society);
-        console.log('HOUSE NO:', req.session.user?.houseNo);
+            Request.find({
+                society: req.session.user._id
+            })
+                .populate('member')
+                .populate('collector'),
 
-        // ==========================
-        // 1. Check existing request
-        // ==========================
-        const existingRequest = await Request.findOne({
-            member: req.session.user._id,
-            status: { $in: ['pending', 'assigned'] }
+            Collector.find({
+                location: new RegExp(
+                    String(req.session.user.city).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+                    'i'
+                )
+            })
+
+        ]);
+
+        res.render('head/requests', {
+            title: 'Waste Requests',
+            user: req.session.user,
+            requests,
+            collectors
         });
-
-        if (existingRequest) {
-            console.log('Already existing request:', existingRequest._id);
-            return res.redirect('/member/dashboard');
-        }
-
-        // ==========================
-        // 2. Validate member data
-        // ==========================
-        if (!req.session.user.society) {
-            console.log('ERROR: Society ID missing');
-            return res.status(400).send('Society information missing from member session.');
-        }
-
-        if (!req.session.user.houseNo) {
-            console.log('ERROR: House number missing');
-            return res.status(400).send('House number missing from member session.');
-        }
-
-        // ==========================
-        // 3. Find society
-        // ==========================
-        const society = await Society.findById(
-            req.session.user.society
-        );
-
-        console.log('FOUND SOCIETY:', society);
-
-        if (!society) {
-            return res.status(404).send('Society not found.');
-        }
-
-        // ==========================
-        // 4. Create request
-        // ==========================
-        const request = new Request({
-
-            member: req.session.user._id,
-
-            society: society._id,
-
-            houseNo: req.session.user.houseNo,
-
-            location: `${society.address}, ${society.city}`,
-
-            status: 'pending',
-
-            requestedAt: new Date()
-        });
-
-        console.log('REQUEST BEFORE SAVE:', request);
-
-        // ==========================
-        // 5. Save
-        // ==========================
-        await request.save();
-
-        console.log('SUCCESS! REQUEST CREATED:', request._id);
-
-        res.redirect('/member/dashboard');
 
     } catch (err) {
 
-        console.error('\n========== CREATE REQUEST ERROR ==========');
-        console.error(err);
-        console.error('MESSAGE:', err.message);
-        console.error('ERRORS:', err.errors);
+        console.error('Requests Error:', err);
 
-        res.status(500).send(`
-            <h2>Request Creation Failed</h2>
-            <pre>${err.stack}</pre>
-            <br>
-            <a href="/member/dashboard">Go Back</a>
-        `);
+        res.status(500).render('head/requests', {
+            title: 'Waste Requests',
+            user: req.session.user,
+            requests: [],
+            collectors: [],
+            error: 'Failed to load requests.'
+        });
+
     }
+
 });
 
 // =======================
